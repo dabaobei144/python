@@ -2,6 +2,7 @@
 
 import scrapy
 from scrapy.selector import Selector
+import re
 
 domain = "http://bbs.hupu.com"
 
@@ -23,7 +24,7 @@ class DmozSpider(scrapy.Spider):
         full_url = self.start_urls[0]
         yield scrapy.Request(full_url, callback=self.parse_question)
     def parse_question(self, response):
-        if self.page_num == 20:
+        if self.page_num == 100:
           return
         self.page_num += 1
         for sel in response.xpath('//td[@class="p_title"]/a'):
@@ -33,6 +34,9 @@ class DmozSpider(scrapy.Spider):
            if len(titles) != 1:
              continue
            title = titles[0].encode('utf-8')
+           if re.search(r'不吹不黑', title) is not None:
+             print title
+
            link = domain + links[0]
            self.file.write(title + '\n')
            self.file.write(link + '\n')
