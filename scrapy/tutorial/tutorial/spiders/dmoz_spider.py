@@ -9,7 +9,7 @@ class DmozSpider(scrapy.Spider):
     name = "dmoz"
     allowed_domains = ["hupu.com"]
     start_urls = [
-        domain + "/bxj/",
+        domain + "/bxj",
     ]
     # self define
     page_num = 0
@@ -23,14 +23,19 @@ class DmozSpider(scrapy.Spider):
         full_url = self.start_urls[0]
         yield scrapy.Request(full_url, callback=self.parse_question)
     def parse_question(self, response):
-        if self.page_num == 100:
+        if self.page_num == 20:
           return
         self.page_num += 1
-        sel = Selector(response)
-        items = sel.xpath('//td/a/text()').extract()
-        for item in items:
-          print item.encode('utf-8')
-          self.file.write(item.encode('utf-8') + '\n')
-        next_page = sel.xpath('//a[@class="next"]/@href').extract()
+        for sel in response.xpath('//td[@class="p_title"]/a'):
+           #if len(sel.xpath('@href').re('/\d+.html')) != 0:
+           titles = sel.xpath('text()').extract()
+           links =  sel.xpath('@href').extract()
+           if len(titles) != 1:
+             continue
+           title = titles[0].encode('utf-8')
+           link = domain + links[0]
+           self.file.write(title + '\n')
+           self.file.write(link + '\n')
+        next_page = response.xpath('//a[@class="next"]/@href').extract()
         full_url = response.urljoin(next_page[0])
         yield scrapy.Request(full_url, callback=self.parse_question)
