@@ -1,5 +1,7 @@
-src_file_path = 'func1a'
-dst_file_path = 'func01.py'
+src_dst = [
+  ('s','d'),
+  ('s1','d1'),
+]
 
 def proc(line):
   sub_lines = []

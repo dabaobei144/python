@@ -8,13 +8,22 @@ def get_proc_file():
     proc_files.sort(key = lambda obj : int(obj.split('.')[0].split('proc')[1]))
     return proc_files[-1]
 
+def get_src_and_dst_files(src_dst):
+    srcs, dsts = [],[]
+    for item in src_dst:
+       srcs.append(item[0])
+       dsts.append(item[1])
+    return srcs, dsts
+
 if __name__ == '__main__':
     proc_module_name = get_proc_file().split('.')[0]
     m = __import__(proc_module_name)
-    src = open(m.src_file_path, 'r')
-    dst = open(m.dst_file_path, 'w')
-    for line in src.readlines():
-      for sub_line in m.proc(line):
-        dst.write(sub_line)
-    src.close()
-    dst.close()
+    srcs, dsts = get_src_and_dst_files(m.src_dst)
+    for i in range(len(srcs)):
+       src = open(srcs[i], 'r')
+       dst = open(dsts[i], 'w')
+       for line in src.readlines():
+         for sub_line in m.proc(line):
+           dst.write(sub_line)
+       src.close()
+       dst.close()
